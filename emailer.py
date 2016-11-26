@@ -1,4 +1,5 @@
 import requests
+import smtplib
 
 def get_emails():
 
@@ -45,7 +46,28 @@ def get_weather_forecast():
     forecast += ' with a high of ' + str(temp_max) + 'C'
     forecast += ' and a low of ' + str(temp_min) + 'C'
 
-    print (forecast)
+    return forecast
+
+def send_emails(emails, schedule, forecast):
+    #Connect to the smpt server
+    server = smtplib.SMTP('smtp.gmail.com', '587')
+
+    #Start TLS encrpytion
+    server.starttls()
+
+    from_email = 'dbzs.110mb@gmail.com'
+    password = input("What's your password?")
+    server.login(from_email, password=password)
+
+    for to_email, name in emails.items():
+        message = 'Subject: Welcome to the Circus!\n'
+        message += 'Hi '+ name + '!\n'
+        message += forecast + '\n'
+        message += schedule + '\n'
+        message += 'Hope to see you there!!'
+        server.sendmail(from_email, to_email, message )
+
+    server.quit()
 
 def main():
     emails = get_emails()
@@ -54,6 +76,9 @@ def main():
     schedule = get_schedule()
     print (schedule)
 
-    get_weather_forecast()
+    forecast = get_weather_forecast()
+    print(forecast)
+
+    send_emails(emails, schedule, forecast)
 
 main()
